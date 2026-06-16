@@ -72,12 +72,35 @@ function trendwatch_create_schema(PDO $pdo): void
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )");
 
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS app_settings (
+        setting_key TEXT PRIMARY KEY,
+        setting_value TEXT,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )");
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS ai_generation_logs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        trend_id INTEGER,
+        provider TEXT NOT NULL,
+        status TEXT NOT NULL,
+        message TEXT,
+        prompt_excerpt TEXT,
+        response_excerpt TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (trend_id) REFERENCES trends(id) ON DELETE SET NULL
+    )");
+
     trendwatch_add_missing_column($pdo, 'trends', 'seo_score', 'INTEGER DEFAULT 0');
     trendwatch_add_missing_column($pdo, 'trends', 'content_angle', 'TEXT');
     trendwatch_add_missing_column($pdo, 'trends', 'source', "TEXT DEFAULT 'manual'");
     trendwatch_add_missing_column($pdo, 'trends', 'source_url', 'TEXT');
     trendwatch_add_missing_column($pdo, 'trends', 'external_id', 'TEXT');
     trendwatch_add_missing_column($pdo, 'trends', 'last_synced_at', 'DATETIME');
+    trendwatch_add_missing_column($pdo, 'content_briefs', 'generator_source', "TEXT DEFAULT 'template'");
+    trendwatch_add_missing_column($pdo, 'content_briefs', 'ai_provider', 'TEXT');
+    trendwatch_add_missing_column($pdo, 'content_briefs', 'ai_status', 'TEXT');
+    trendwatch_add_missing_column($pdo, 'content_briefs', 'ai_message', 'TEXT');
 }
 
 function trendwatch_add_missing_column(PDO $pdo, string $table, string $column, string $definition): void
@@ -92,6 +115,34 @@ function trendwatch_add_missing_column(PDO $pdo, string $table, string $column, 
     }
 
     $pdo->exec("ALTER TABLE $table ADD COLUMN $column $definition");
+}
+
+
+function trendwatch_setting_exists(PDO $pdo, string $key): bool
+{
+    $stmt = $pdo->prepare('SELECT COUNT(*) FROM app_settings WHERE setting_key = :key');
+    $stmt->execute([':key' => $key]);
+    return (int) $stmt->fetchColumn() > 0;
+}
+
+function trendwatch_set_default_setting(PDO $pdo, string $key, string $value): void
+{
+    if (trendwatch_setting_exists($pdo, $key)) {
+        return;
+    }
+
+    $stmt = $pdo->prepare('INSERT INTO app_settings (setting_key, setting_value) VALUES (:key, :value)');
+    $stmt->execute([':key' => $key, ':value' => $value]);
+}
+
+function trendwatch_seed_settings(PDO $pdo): void
+{
+    trendwatch_set_default_setting($pdo, 'ai_enabled', '0');
+    trendwatch_set_default_setting($pdo, 'ai_provider', 'template');
+    trendwatch_set_default_setting($pdo, 'ai_api_key', '');
+    trendwatch_set_default_setting($pdo, 'ai_model', 'gemini-1.5-flash');
+    trendwatch_set_default_setting($pdo, 'ai_endpoint', '');
+    trendwatch_set_default_setting($pdo, 'ai_temperature', '0.7');
 }
 
 function trendwatch_seed_database(PDO $pdo): void
@@ -173,6 +224,7 @@ try {
 
     trendwatch_create_schema($pdo);
     trendwatch_seed_database($pdo);
+    trendwatch_seed_settings($pdo);
 } catch (PDOException $e) {
     die('Koneksi database gagal: ' . $e->getMessage());
 }
