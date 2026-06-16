@@ -2,10 +2,12 @@
 
 function seo_split_keywords(?string $keywords): array
 {
-    $items = preg_split('/[,;\n]+/', (string) $keywords);
-    $items = array_map(static fn($item) => trim($item), $items ?: []);
-    $items = array_values(array_filter($items, static fn($item) => $item !== ''));
-    return array_values(array_unique($items));
+    $cleaned = seo_sanitize_secondary_keyword_text((string) $keywords);
+    if ($cleaned === '') {
+        return [];
+    }
+
+    return array_values(array_filter(array_map('trim', explode(',', $cleaned))));
 }
 
 function seo_title_case(string $text): string
@@ -20,6 +22,154 @@ function seo_title_case(string $text): string
     }
 
     return ucwords(strtolower($text));
+}
+
+
+function seo_clean_text_value(string $text): string
+{
+    $text = html_entity_decode(strip_tags($text), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+    $text = str_replace(["\xc2\xa0", "\u{00A0}"], ' ', $text);
+    $text = preg_replace('/(\d)\s*,\s*(\d)/u', '$1.$2', $text);
+    $text = preg_replace('/\s*[-|–—]\s*(kompas\.com|detikcom|detik\.com|cnn indonesia|kumparan\.com|tribunnews\.com|liputan6\.com|antara news|tempo\.co|suara\.com|republika\.co\.id|okezone\.com|viva\.co\.id).*$/iu', '', $text);
+    $text = preg_replace('/\b(kompas\.com|detikcom|detik\.com|cnn indonesia|kumparan\.com|tribunnews\.com|liputan6\.com|antara news|tempo\.co|suara\.com|republika\.co\.id|okezone\.com|viva\.co\.id)\b/iu', '', $text);
+    $text = preg_replace('/https?:\/\/\S+/i', '', $text);
+    $text = preg_replace('/\s+/', ' ', $text);
+    return trim($text, " \t\n\r\0\x0B.,;:-|");
+}
+
+function seo_is_disaster_topic(array $trend): bool
+{
+    $text = strtolower(($trend['trend_name'] ?? '') . ' ' . ($trend['category'] ?? '') . ' ' . ($trend['related_keywords'] ?? ''));
+    return str_contains($text, 'gempa') || str_contains($text, 'tsunami') || str_contains($text, 'bmkg') || str_contains($text, 'banjir') || str_contains($text, 'erupsi') || str_contains($text, 'longsor');
+}
+
+function seo_is_bad_keyword(string $keyword): bool
+{
+    $keyword = trim($keyword);
+    if ($keyword === '') {
+        return true;
+    }
+
+    if (function_exists('mb_strlen')) {
+        if (mb_strlen($keyword, 'UTF-8') > 58) {
+            return true;
+        }
+    } elseif (strlen($keyword) > 58) {
+        return true;
+    }
+
+    $lower = strtolower($keyword);
+    if (str_contains($lower, '.com') || str_contains($lower, 'http') || str_contains($lower, 'www.')) {
+        return true;
+    }
+
+    if (preg_match('/\b(saat|berhamburan|peserta|wisuda|kembali guncang)\b/iu', $keyword)) {
+        return true;
+    }
+
+    return false;
+}
+
+function seo_limit_words(string $text, int $maxWords = 7): string
+{
+    $words = preg_split('/\s+/u', trim($text));
+    if (!$words || count($words) <= $maxWords) {
+        return trim($text);
+    }
+
+    return implode(' ', array_slice($words, 0, $maxWords));
+}
+
+function seo_make_disaster_keywords(string $mainKeyword, string $rawText): array
+{
+    $main = strtolower(seo_clean_text_value($mainKeyword));
+    $titleMain = seo_title_case($main);
+    $items = [];
+
+    if (str_contains($main, 'gempa')) {
+        $items[] = $main;
+        $items[] = $main . ' hari ini';
+        $items[] = $main . ' terbaru';
+        $items[] = 'info BMKG ' . $main;
+        $items[] = 'pusat ' . $main;
+
+        $raw = strtolower($rawText);
+        if (str_contains($raw, 'sulawesi tengah') || str_contains($main, 'palu')) {
+            $items[] = 'gempa Sulawesi Tengah';
+        }
+        if (str_contains($raw, 'sigi')) {
+            $items[] = 'gempa Sigi';
+        }
+        if (preg_match('/m\s*(\d+(?:[.,]\d+)?)/iu', $rawText, $m)) {
+            $mag = str_replace(',', '.', $m[1]);
+            $items[] = $titleMain . ' magnitudo ' . $mag;
+        }
+        if (str_contains($raw, 'tsunami')) {
+            $items[] = $main . ' tidak berpotensi tsunami';
+        }
+    }
+
+    return $items;
+}
+
+function seo_sanitize_secondary_keyword_text(string $keywords, string $mainKeyword = '', string $category = ''): string
+{
+    $keywords = preg_replace('/(\d)\s*,\s*(\d)/u', '$1.$2', $keywords);
+    $rawParts = preg_split('/[,;\n]+/u', (string) $keywords);
+    $items = [];
+
+    foreach ($rawParts ?: [] as $part) {
+        $clean = seo_clean_text_value($part);
+        if ($clean === '') {
+            continue;
+        }
+
+        if (preg_match('/gempa.*m\s*(\d+(?:[.,]\d+)?).*?(palu|sigi|sulawesi tengah)/iu', $clean, $m)) {
+            $items[] = 'gempa ' . seo_title_case($m[2]) . ' magnitudo ' . str_replace(',', '.', $m[1]);
+            continue;
+        }
+
+        if (seo_is_bad_keyword($clean)) {
+            continue;
+        }
+
+        $items[] = seo_limit_words($clean, 7);
+    }
+
+    $textAll = strtolower($mainKeyword . ' ' . $category . ' ' . $keywords);
+    if (str_contains($textAll, 'gempa') || str_contains($textAll, 'bmkg') || str_contains($textAll, 'tsunami')) {
+        $items = array_merge(seo_make_disaster_keywords($mainKeyword ?: 'gempa', $keywords), $items);
+    }
+
+    if (!$items && $mainKeyword !== '') {
+        $main = strtolower(seo_clean_text_value($mainKeyword));
+        $items = [$main, $main . ' terbaru', $main . ' hari ini'];
+    }
+
+    $normalized = [];
+    foreach ($items as $item) {
+        $item = seo_clean_text_value($item);
+        if ($item === '' || seo_is_bad_keyword($item)) {
+            continue;
+        }
+        $key = strtolower($item);
+        if (!isset($normalized[$key])) {
+            $normalized[$key] = $item;
+        }
+    }
+
+    return implode(', ', array_slice(array_values($normalized), 0, 8));
+}
+
+function seo_meta_description(array $trend, string $mainKeyword): string
+{
+    $main = strtolower(seo_clean_text_value($mainKeyword));
+
+    if (seo_is_disaster_topic($trend)) {
+        return 'Update ' . $main . ' hari ini, mulai dari magnitudo, lokasi pusat gempa, info BMKG, dampak, dan langkah aman yang perlu diketahui.';
+    }
+
+    return 'Simak informasi terbaru tentang ' . $main . ', lengkap dengan fakta utama, konteks, keyword terkait, dan rekomendasi konten yang mudah dipahami.';
 }
 
 function seo_detect_search_intent(array $trend): string
@@ -39,6 +189,10 @@ function seo_detect_search_intent(array $trend): string
 
     if (str_contains($category, 'tokoh') || str_contains($text, 'profil') || str_contains($text, 'siapa')) {
         return 'Informasional profil. Pengguna ingin tahu identitas, latar belakang, fakta penting, dan alasan tokoh menjadi tren.';
+    }
+
+    if (seo_is_disaster_topic($trend)) {
+        return 'Informasional kebencanaan. Pengguna mencari magnitudo, lokasi pusat gempa, info BMKG, dampak, kondisi terkini, dan langkah aman.';
     }
 
     if (str_contains($category, 'berita') || str_contains($text, 'kasus') || str_contains($text, 'terbaru')) {
@@ -69,6 +223,10 @@ function seo_target_audience(array $trend): string
         return 'Pembaca umum, pencari profil tokoh, jurnalis, penulis berita ringan, dan pengguna media sosial.';
     }
 
+    if (seo_is_disaster_topic($trend)) {
+        return 'Pembaca berita nasional, warga terdampak, penulis artikel aktual, admin media, dan pengguna yang membutuhkan informasi cepat dari sumber resmi.';
+    }
+
     if (str_contains($category, 'berita')) {
         return 'Pembaca berita nasional, penulis artikel aktual, admin portal berita, dan pengguna yang butuh konteks cepat.';
     }
@@ -84,6 +242,10 @@ function seo_recommended_format(array $trend): string
 
     if (str_contains($category, 'olahraga') || str_contains($name, 'vs')) {
         return 'Artikel live update, artikel hasil pertandingan, short video 30 sampai 60 detik, dan carousel statistik.';
+    }
+
+    if (seo_is_disaster_topic($trend)) {
+        return 'Artikel update 800 sampai 1.200 kata, live update ringkas, carousel mitigasi, dan video pendek informasi keselamatan.';
     }
 
     if ($volume >= 100000) {
@@ -174,6 +336,14 @@ function seo_generate_title_options(array $trend): array
         ];
     }
 
+    if (seo_is_disaster_topic($trend)) {
+        return [
+            $titleName . ' Hari Ini: Magnitudo, Lokasi, dan Info BMKG Terbaru',
+            'Update ' . $titleName . ': Pusat Gempa, Dampak, dan Imbauan Keselamatan',
+            $titleName . ': Fakta Utama, Penyebab, dan Langkah Aman Setelah Gempa',
+        ];
+    }
+
     if (str_contains($category, 'berita')) {
         return [
             $titleName . ': Kronologi, Fakta Terbaru, dan Hal yang Perlu Diketahui',
@@ -206,6 +376,10 @@ function seo_generate_outline(array $trend): string
         return "H1: Profil {$name}\nH2: Siapa {$name}?\nH2: Latar Belakang Singkat\nH2: Perjalanan dan Fakta Penting\nH2: Alasan Menjadi Tren\nH2: Respons Publik\nH2: Fakta yang Perlu Diverifikasi\nH2: Kesimpulan";
     }
 
+    if (seo_is_disaster_topic($trend)) {
+        return "H1: {$name} Hari Ini\nH2: Ringkasan Kejadian\nH2: Magnitudo, Lokasi, dan Kedalaman Gempa\nH2: Wilayah yang Merasakan Guncangan\nH2: Informasi BMKG dan Potensi Tsunami\nH2: Dampak yang Perlu Dipantau\nH2: Langkah Aman Setelah Gempa\nH2: Cara Memantau Update Resmi\nH2: Kesimpulan";
+    }
+
     return "H1: {$name}\nH2: Apa Itu {$name}?\nH2: Kenapa Topik Ini Menjadi Tren?\nH2: Fakta Utama yang Perlu Diketahui\nH2: Perkembangan Terbaru\nH2: Dampak bagi Pembaca\nH2: Rekomendasi Konten Lanjutan\nH2: Kesimpulan";
 }
 
@@ -213,6 +387,10 @@ function seo_generate_faq(array $trend): string
 {
     $name = trim($trend['trend_name'] ?? 'topik ini');
     $titleName = seo_title_case($name);
+
+    if (seo_is_disaster_topic($trend)) {
+        return "1. Berapa magnitudo {$titleName} hari ini?\n2. Di mana lokasi pusat {$titleName}?\n3. Apakah {$titleName} berpotensi tsunami?\n4. Wilayah mana saja yang merasakan guncangan?\n5. Di mana masyarakat bisa memantau update resmi?";
+    }
 
     return "1. Apa itu {$titleName}?\n2. Mengapa {$titleName} menjadi tren?\n3. Apa fakta terbaru tentang {$titleName}?\n4. Siapa saja yang perlu mengikuti update {$titleName}?\n5. Bagaimana cara mendapatkan informasi terbaru tentang {$titleName}?";
 }
@@ -230,32 +408,47 @@ function seo_generate_platform_ideas(array $trend): string
         return "Instagram Carousel: Bacaan dan arti {$name}\nReels/TikTok: Cara membaca {$name} dengan pelan\nWhatsApp Status: Kutipan singkat dan makna utama\nBlog: Panduan lengkap dengan penjelasan konteks";
     }
 
+    if (seo_is_disaster_topic($trend)) {
+        return "Instagram Carousel: 5 fakta aman tentang {$name}\nReels/TikTok: Cara cek info gempa dari sumber resmi\nX/Threads: Update singkat magnitudo, lokasi, dan imbauan\nBlog: Artikel update lengkap berbasis SEO dan sumber resmi";
+    }
+
     return "Instagram Carousel: 5 fakta tentang {$name}\nReels/TikTok: Kenapa {$name} viral?\nX/Threads: Kronologi singkat dalam beberapa poin\nBlog: Artikel lengkap berbasis SEO";
 }
 
 function seo_generate_brief(array $trend): array
 {
-    $keywordList = seo_split_keywords($trend['related_keywords'] ?? '');
-    $mainKeyword = trim($trend['trend_name'] ?? 'topik trending');
-    $secondaryKeywords = $keywordList ? implode(', ', array_slice($keywordList, 0, 8)) : $mainKeyword . ', berita terbaru, topik viral';
+    $mainKeyword = seo_clean_text_value(trim($trend['trend_name'] ?? 'topik trending'));
+    if ($mainKeyword === '') {
+        $mainKeyword = 'topik trending';
+    }
+
+    $secondaryKeywords = seo_sanitize_secondary_keyword_text(
+        (string) ($trend['related_keywords'] ?? ''),
+        $mainKeyword,
+        (string) ($trend['category'] ?? '')
+    );
+    if ($secondaryKeywords === '') {
+        $secondaryKeywords = strtolower($mainKeyword) . ', berita terbaru, topik viral';
+    }
+
+    $trend['trend_name'] = $mainKeyword;
     $titleOptions = seo_generate_title_options($trend);
     $title = $titleOptions[0] ?? seo_title_case($mainKeyword);
-    $metaKeyword = strtolower($mainKeyword);
     $wordCount = seo_word_count($trend);
     $priority = seo_priority_score($trend);
 
     return [
-        'main_keyword' => $mainKeyword,
+        'main_keyword' => strtolower($mainKeyword),
         'secondary_keywords' => $secondaryKeywords,
         'search_intent' => seo_detect_search_intent($trend),
         'target_audience' => seo_target_audience($trend),
         'recommended_format' => seo_recommended_format($trend),
         'title_options' => implode("\n", $titleOptions),
         'selected_title' => $title,
-        'meta_description' => 'Simak informasi terbaru tentang ' . $metaKeyword . ', lengkap dengan fakta utama, konteks, keyword terkait, dan rekomendasi konten yang mudah dipahami.',
-        'content_angle' => $trend['content_angle'] ?: 'Bahas topik secara cepat, jelas, dan berbasis kebutuhan pencarian pengguna.',
+        'meta_description' => seo_meta_description($trend, $mainKeyword),
+        'content_angle' => ($trend['content_angle'] ?? '') ?: 'Bahas topik secara cepat, jelas, hati-hati, dan tetap mengacu pada sumber resmi saat menyebut data terbaru.',
         'outline' => seo_generate_outline($trend),
-        'intro_hook' => seo_title_case($mainKeyword) . ' sedang ramai dicari. Artikel ini perlu menjawab pertanyaan utama pembaca sejak paragraf pertama agar sesuai dengan intent pencarian.',
+        'intro_hook' => seo_title_case($mainKeyword) . ' sedang ramai dicari. Artikel perlu menjawab informasi utama sejak paragraf pertama dan mengarahkan pembaca ke sumber resmi untuk update terbaru.',
         'faq_items' => seo_generate_faq($trend),
         'platform_ideas' => seo_generate_platform_ideas($trend),
         'word_count' => $wordCount,
