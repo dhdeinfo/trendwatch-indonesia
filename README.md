@@ -1,5 +1,6 @@
 # TrendWatch Indonesia
 
+#Semua code dibuat menggunakan ChatGPT
 TrendWatch Indonesia adalah aplikasi PHP Native + SQLite untuk memantau tren pencarian, mengelola data tren, menampilkan grafik tren, membaca peluang konten SEO, dan melakukan sinkronisasi data dari Google Trends RSS Indonesia.
 
 Versi ini adalah **Step 15 Final**, yaitu versi finalisasi tampilan setelah proses pengembangan bertahap dari Step 1 sampai Step 10, lalu langsung dilanjutkan ke Step 15.
