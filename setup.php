@@ -66,6 +66,22 @@ try {
         FOREIGN KEY (trend_id) REFERENCES trends(id) ON DELETE CASCADE
     )");
 
+
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS generated_contents (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        brief_id INTEGER NOT NULL,
+        trend_id INTEGER NOT NULL,
+        content_type TEXT NOT NULL,
+        title TEXT NOT NULL,
+        body TEXT NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(brief_id, content_type),
+        FOREIGN KEY (brief_id) REFERENCES content_briefs(id) ON DELETE CASCADE,
+        FOREIGN KEY (trend_id) REFERENCES trends(id) ON DELETE CASCADE
+    )");
+
     $pdo->exec("CREATE TABLE IF NOT EXISTS app_settings (
         setting_key TEXT PRIMARY KEY,
         setting_value TEXT,
