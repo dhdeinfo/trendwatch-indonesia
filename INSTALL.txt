@@ -65,3 +65,27 @@ Catatan:
 - AI tidak wajib aktif.
 - Jika AI gagal, sistem otomatis memakai template gratis.
 - Aktifkan extension curl di PHP untuk memakai API AI.
+
+STEP 18 - CARA CEK FITUR GENERATOR KONTEN
+
+1. Jalankan setup:
+   http://localhost/trendwatch/setup.php
+
+2. Login:
+   Email: admin@gmail.com
+   Password: admin123
+
+3. Buka menu SEO Brief.
+
+4. Generate salah satu brief.
+
+5. Buka detail brief.
+
+6. Klik tombol:
+   - Artikel SEO
+   - Instagram Carousel
+   - Reels/TikTok
+   - X/Threads
+   - YouTube Shorts
+
+7. Hasil generator bisa dilihat di menu Konten Siap Pakai.
