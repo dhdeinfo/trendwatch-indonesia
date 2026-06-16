@@ -127,6 +127,11 @@ require_once __DIR__ . '/../includes/sidebar.php';
                             <td>
                                 <div class="action-group">
                                     <a href="<?= e(url('admin/trend_detail.php?id=' . $trend['id'])) ?>" class="btn btn-secondary small">Detail</a>
+                                    <form method="post" action="<?= e(url('admin/content_briefs.php')) ?>" class="inline-form">
+                                        <?= csrf_field() ?>
+                                        <input type="hidden" name="trend_id" value="<?= (int) $trend['id'] ?>">
+                                        <button type="submit" class="btn btn-secondary small">SEO Brief</button>
+                                    </form>
                                     <a href="<?= e(url('admin/trend_edit.php?id=' . $trend['id'])) ?>" class="btn btn-primary small">Edit</a>
                                     <a href="<?= e(url('admin/trend_delete.php?id=' . $trend['id'])) ?>" class="btn btn-danger small">Hapus</a>
                                 </div>

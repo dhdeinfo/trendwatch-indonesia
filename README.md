@@ -502,3 +502,72 @@ Status AI: belum memakai AI API
 Status export: belum tersedia
 Status UI: sudah difinalisasi
 ```
+
+---
+
+## Step 16 - SEO Content Brief Generator
+
+Step 16 menambahkan fitur **SEO Content Brief Generator**. Fitur ini membuat brief artikel otomatis dari data tren yang sudah ada di database.
+
+### Perubahan utama
+
+- Menambahkan menu baru **SEO Brief** di sidebar admin.
+- Menambahkan halaman `admin/content_briefs.php`.
+- Menambahkan halaman `admin/content_brief_detail.php`.
+- Menambahkan file generator `includes/seo_brief_generator.php`.
+- Menambahkan tabel baru `content_briefs` di SQLite.
+- Menambahkan tombol **SEO Brief** pada halaman Data Tren.
+- Menambahkan tombol **Buat SEO Brief** pada halaman Detail Tren.
+- Menambahkan tampilan kartu brief terbaru.
+- Menambahkan halaman detail brief yang bisa dicetak.
+- Menambahkan fitur regenerate brief.
+- Menambahkan fitur copy brief lengkap melalui textarea.
+
+### Output brief yang dibuat
+
+Setiap brief berisi:
+
+- Keyword utama
+- Keyword turunan
+- Search intent
+- Target audiens
+- Format konten yang disarankan
+- Opsi judul artikel
+- Meta description
+- Angle konten
+- Opening hook
+- Outline SEO H1 dan H2
+- FAQ
+- Ide distribusi konten untuk Instagram, TikTok/Reels, X/Threads, dan blog
+- Target jumlah kata
+- Skor prioritas konten
+
+### Catatan penting
+
+Generator pada Step 16 memakai **template otomatis PHP**, bukan API AI berbayar. Jadi fitur ini gratis, bisa berjalan lokal, dan tetap bisa dipakai tanpa internet.
+
+Nanti fitur ini masih bisa dikembangkan menjadi mode AI opsional dengan Gemini API, OpenRouter, OpenAI API, atau Ollama lokal.
+
+### Cara memakai fitur SEO Brief
+
+1. Login admin.
+2. Buka menu **SEO Brief**.
+3. Pilih salah satu tren.
+4. Klik **Generate**.
+5. Sistem akan membuat brief otomatis.
+6. Buka halaman detail brief.
+7. Cetak atau salin brief ke dokumen kerja.
+
+### Changelog Step 16
+
+- `config/database.php`: menambahkan schema tabel `content_briefs`.
+- `setup.php`: menambahkan proses pembuatan tabel `content_briefs`.
+- `check_connection.php`: menambahkan pengecekan tabel `content_briefs`.
+- `includes/sidebar.php`: menambahkan menu SEO Brief.
+- `includes/seo_brief_generator.php`: menambahkan logika generator brief.
+- `admin/content_briefs.php`: halaman daftar dan generator brief.
+- `admin/content_brief_detail.php`: halaman detail brief.
+- `admin/trends.php`: menambahkan tombol SEO Brief di daftar tren.
+- `admin/trend_detail.php`: menambahkan tombol Buat SEO Brief.
+- `assets/css/admin.css`: menambahkan style untuk brief card, copy textarea, dan form inline.
+

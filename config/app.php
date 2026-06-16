@@ -1,5 +1,13 @@
 <?php
 
+
+if (!function_exists('str_contains')) {
+    function str_contains(string $haystack, string $needle): bool
+    {
+        return $needle === '' || strpos($haystack, $needle) !== false;
+    }
+}
+
 if (!defined('APP_NAME')) {
     define('APP_NAME', 'TrendWatch Indonesia');
 }

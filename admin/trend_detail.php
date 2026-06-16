@@ -124,6 +124,11 @@ require_once __DIR__ . '/../includes/sidebar.php';
         </div>
         <div class="admin-profile">
             <button type="button" class="btn btn-secondary" onclick="window.print()">Cetak</button>
+            <form method="post" action="<?= e(url('admin/content_briefs.php')) ?>" class="inline-form">
+                <?= csrf_field() ?>
+                <input type="hidden" name="trend_id" value="<?= (int) $trend['id'] ?>">
+                <button type="submit" class="btn btn-primary">Buat SEO Brief</button>
+            </form>
             <a href="<?= e(url('admin/trends.php')) ?>" class="btn btn-secondary">Kembali</a>
             <a href="<?= e(url('admin/trend_edit.php?id=' . $trend['id'])) ?>" class="btn btn-primary">Edit</a>
             <a href="<?= e(url('auth/logout.php')) ?>" class="btn btn-secondary">Logout</a>

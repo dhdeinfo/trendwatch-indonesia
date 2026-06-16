@@ -39,3 +39,14 @@ FITUR STEP 15
 - Mobile responsive
 - Tabel dan form lebih rapi
 - Chart mengikuti tema tampilan
+
+STEP 16 - SEO CONTENT BRIEF GENERATOR
+
+1. Jalankan setup.php setelah mengganti file project.
+2. Login sebagai admin.
+3. Buka menu SEO Brief.
+4. Klik Generate pada salah satu tren.
+5. Buka detail brief untuk melihat keyword, intent, judul, meta description, outline, FAQ, dan ide konten sosial media.
+
+Catatan:
+Fitur ini gratis dan tidak memakai API AI. Semua hasil dibuat memakai template otomatis PHP berdasarkan nama tren, kategori, volume pencarian, keyword terkait, status, dan SEO score.

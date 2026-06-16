@@ -1189,3 +1189,60 @@ textarea {
         color: #111827;
     }
 }
+
+/* Step 16: SEO Content Brief */
+.inline-form {
+    display: inline-flex;
+    margin: 0;
+}
+
+.brief-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 14px;
+}
+
+.brief-card {
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    background: var(--card-soft);
+    display: grid;
+    gap: 10px;
+}
+
+.brief-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.brief-card-top strong {
+    color: var(--primary);
+    font-size: 18px;
+}
+
+.brief-card h3 {
+    margin: 0;
+    font-size: 18px;
+    line-height: 1.35;
+}
+
+.brief-card p {
+    margin: 0;
+    color: var(--muted);
+    line-height: 1.6;
+}
+
+.brief-card small {
+    color: var(--muted);
+    line-height: 1.5;
+}
+
+.copy-textarea {
+    min-height: 380px;
+    line-height: 1.6;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 13px;
+}

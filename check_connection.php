@@ -8,7 +8,7 @@ $checks[] = ['SQLite3 aktif', extension_loaded('sqlite3') ? 'OK' : 'Gagal'];
 $checks[] = ['Folder database', is_dir(APP_ROOT . '/database') ? 'OK' : 'Gagal'];
 $checks[] = ['File database', file_exists(APP_ROOT . '/database/trendwatch.sqlite') ? 'OK' : 'Gagal'];
 
-$tables = ['admins', 'trends', 'trend_histories', 'sync_logs'];
+$tables = ['admins', 'trends', 'trend_histories', 'content_briefs', 'sync_logs'];
 foreach ($tables as $table) {
     try {
         $count = (int) $pdo->query("SELECT COUNT(*) FROM {$table}")->fetchColumn();

@@ -37,6 +37,31 @@ try {
         FOREIGN KEY (trend_id) REFERENCES trends(id) ON DELETE CASCADE
     )");
 
+
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS content_briefs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        trend_id INTEGER NOT NULL,
+        main_keyword TEXT NOT NULL,
+        secondary_keywords TEXT,
+        search_intent TEXT,
+        target_audience TEXT,
+        recommended_format TEXT,
+        title_options TEXT,
+        selected_title TEXT,
+        meta_description TEXT,
+        content_angle TEXT,
+        outline TEXT,
+        intro_hook TEXT,
+        faq_items TEXT,
+        platform_ideas TEXT,
+        word_count INTEGER DEFAULT 1000,
+        priority_score INTEGER DEFAULT 0,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (trend_id) REFERENCES trends(id) ON DELETE CASCADE
+    )");
+
     $checkAdmin = (int) $pdo->query('SELECT COUNT(*) FROM admins')->fetchColumn();
 
     if ($checkAdmin === 0) {
