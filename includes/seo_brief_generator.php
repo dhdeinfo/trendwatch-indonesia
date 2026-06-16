@@ -265,6 +265,11 @@ function seo_generate_brief(array $trend): array
 
 function seo_save_brief(PDO $pdo, int $trendId, array $brief): int
 {
+    $brief['generator_source'] = $brief['generator_source'] ?? 'template';
+    $brief['ai_provider'] = $brief['ai_provider'] ?? 'template';
+    $brief['ai_status'] = $brief['ai_status'] ?? 'fallback';
+    $brief['ai_message'] = $brief['ai_message'] ?? '';
+
     $existing = $pdo->prepare('SELECT id FROM content_briefs WHERE trend_id = :trend_id LIMIT 1');
     $existing->execute([':trend_id' => $trendId]);
     $briefId = (int) ($existing->fetchColumn() ?: 0);
@@ -286,6 +291,10 @@ function seo_save_brief(PDO $pdo, int $trendId, array $brief): int
             platform_ideas = :platform_ideas,
             word_count = :word_count,
             priority_score = :priority_score,
+            generator_source = :generator_source,
+            ai_provider = :ai_provider,
+            ai_status = :ai_status,
+            ai_message = :ai_message,
             updated_at = CURRENT_TIMESTAMP
             WHERE id = :id");
         $brief['id'] = $briefId;
@@ -305,14 +314,18 @@ function seo_save_brief(PDO $pdo, int $trendId, array $brief): int
             ':platform_ideas' => $brief['platform_ideas'],
             ':word_count' => $brief['word_count'],
             ':priority_score' => $brief['priority_score'],
+            ':generator_source' => $brief['generator_source'],
+            ':ai_provider' => $brief['ai_provider'],
+            ':ai_status' => $brief['ai_status'],
+            ':ai_message' => $brief['ai_message'],
             ':id' => $briefId,
         ]);
         return $briefId;
     }
 
     $stmt = $pdo->prepare("INSERT INTO content_briefs
-        (trend_id, main_keyword, secondary_keywords, search_intent, target_audience, recommended_format, title_options, selected_title, meta_description, content_angle, outline, intro_hook, faq_items, platform_ideas, word_count, priority_score)
-        VALUES (:trend_id, :main_keyword, :secondary_keywords, :search_intent, :target_audience, :recommended_format, :title_options, :selected_title, :meta_description, :content_angle, :outline, :intro_hook, :faq_items, :platform_ideas, :word_count, :priority_score)");
+        (trend_id, main_keyword, secondary_keywords, search_intent, target_audience, recommended_format, title_options, selected_title, meta_description, content_angle, outline, intro_hook, faq_items, platform_ideas, word_count, priority_score, generator_source, ai_provider, ai_status, ai_message)
+        VALUES (:trend_id, :main_keyword, :secondary_keywords, :search_intent, :target_audience, :recommended_format, :title_options, :selected_title, :meta_description, :content_angle, :outline, :intro_hook, :faq_items, :platform_ideas, :word_count, :priority_score, :generator_source, :ai_provider, :ai_status, :ai_message)");
     $stmt->execute([
         ':trend_id' => $trendId,
         ':main_keyword' => $brief['main_keyword'],
@@ -330,6 +343,10 @@ function seo_save_brief(PDO $pdo, int $trendId, array $brief): int
         ':platform_ideas' => $brief['platform_ideas'],
         ':word_count' => $brief['word_count'],
         ':priority_score' => $brief['priority_score'],
+        ':generator_source' => $brief['generator_source'],
+        ':ai_provider' => $brief['ai_provider'],
+        ':ai_status' => $brief['ai_status'],
+        ':ai_message' => $brief['ai_message'],
     ]);
 
     return (int) $pdo->lastInsertId();
