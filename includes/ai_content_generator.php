@@ -91,6 +91,7 @@ function ai_build_prompt(array $trend): string
     $volume = (int) ($trend['search_volume'] ?? 0);
     $volumeText = trim($trend['volume_text'] ?? format_volume_text($volume));
     $keywords = trim($trend['related_keywords'] ?? '');
+    $keywords = seo_sanitize_secondary_keyword_text($keywords, $trendName, $category);
     $status = trim($trend['status'] ?? 'Aktif');
     $angle = trim($trend['content_angle'] ?? '');
 
@@ -102,6 +103,10 @@ function ai_build_prompt(array $trend): string
         "- Status: {$status}\n" .
         "- Keyword terkait: {$keywords}\n" .
         "- Angle awal: {$angle}\n\n" .
+        "Aturan penting:\n" .
+        "- Bersihkan keyword terkait dari judul berita panjang, nama situs, URL, dan potongan kalimat yang tidak cocok sebagai keyword.\n" .
+        "- Jangan mengarang angka, korban, kerusakan, lokasi detail, atau klaim terbaru jika tidak ada pada data tren.\n" .
+        "- Untuk isu kebencanaan seperti gempa, arahkan pembaca mengecek sumber resmi seperti BMKG tanpa mengarang data baru.\n\n" .
         "Kembalikan hanya JSON valid tanpa markdown. Gunakan struktur ini:\n" .
         "{\n" .
         "  \"main_keyword\": \"...\",\n" .
@@ -330,6 +335,19 @@ function ai_normalize_brief(array $trend, array $aiData, array $fallback, string
         if ($value !== '') {
             $brief[$field] = $value;
         }
+    }
+
+    $brief['main_keyword'] = strtolower(seo_clean_text_value((string) ($brief['main_keyword'] ?? ($trend['trend_name'] ?? 'topik trending'))));
+    $brief['secondary_keywords'] = seo_sanitize_secondary_keyword_text(
+        (string) ($brief['secondary_keywords'] ?? ''),
+        (string) ($brief['main_keyword'] ?: ($trend['trend_name'] ?? '')),
+        (string) ($trend['category'] ?? '')
+    ) ?: ($fallback['secondary_keywords'] ?? 'berita terbaru, topik viral');
+    $brief['meta_description'] = seo_clean_text_value((string) ($brief['meta_description'] ?? ''));
+    if (function_exists('mb_strlen') && mb_strlen($brief['meta_description'], 'UTF-8') > 160) {
+        $brief['meta_description'] = mb_substr($brief['meta_description'], 0, 157, 'UTF-8') . '...';
+    } elseif (strlen($brief['meta_description']) > 160) {
+        $brief['meta_description'] = substr($brief['meta_description'], 0, 157) . '...';
     }
 
     $brief['word_count'] = max(500, min(2500, (int) ($brief['word_count'] ?? 1000)));
