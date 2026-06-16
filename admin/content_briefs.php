@@ -2,12 +2,13 @@
 
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/auth.php';
-require_once __DIR__ . '/../includes/seo_brief_generator.php';
+require_once __DIR__ . '/../includes/ai_content_generator.php';
 require_admin();
 
 $pageTitle = 'SEO Content Brief';
 $activeMenu = 'content_briefs';
 $flash = flash_get();
+$aiSettings = ai_get_settings($pdo);
 
 if (is_post()) {
     csrf_verify();
@@ -22,7 +23,7 @@ if (is_post()) {
         redirect('admin/content_briefs.php');
     }
 
-    $brief = seo_generate_brief($trend);
+    $brief = ai_generate_seo_brief($pdo, $trend);
     $briefId = seo_save_brief($pdo, $trendId, $brief);
 
     flash_set('success', 'SEO content brief berhasil dibuat.');
@@ -75,7 +76,7 @@ require_once __DIR__ . '/../includes/sidebar.php';
     <header class="topbar">
         <div>
             <h1>SEO Content Brief Generator</h1>
-            <p>Buat brief artikel SEO otomatis dari data tren. Mode ini gratis dan tidak memakai API AI.</p>
+            <p>Buat brief artikel SEO otomatis dari data tren. Bisa memakai template gratis atau AI Optional jika diaktifkan.</p>
         </div>
         <div class="admin-profile">
             <span><?= e(current_admin_name()) ?></span>
@@ -86,6 +87,15 @@ require_once __DIR__ . '/../includes/sidebar.php';
     <?php if ($flash): ?>
         <div class="alert alert-<?= e($flash['type']) ?>"><?= e($flash['message']) ?></div>
     <?php endif; ?>
+
+    <section class="panel compact-panel">
+        <div class="panel-header">
+            <h2>Mode Generator</h2>
+            <span><?= ($aiSettings['ai_enabled'] ?? '0') === '1' && ($aiSettings['ai_provider'] ?? 'template') !== 'template' ? 'AI Optional aktif' : 'Template gratis aktif' ?></span>
+        </div>
+        <p class="muted-text">Provider: <strong><?= e(ai_provider_label($aiSettings['ai_provider'] ?? 'template')) ?></strong>. Jika AI gagal, aplikasi otomatis memakai template gratis.</p>
+        <a href="<?= e(url('admin/ai_settings.php')) ?>" class="btn btn-secondary small">Atur AI Optional</a>
+    </section>
 
     <section class="stats-grid">
         <div class="stat-card">
