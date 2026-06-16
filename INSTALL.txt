@@ -50,3 +50,18 @@ STEP 16 - SEO CONTENT BRIEF GENERATOR
 
 Catatan:
 Fitur ini gratis dan tidak memakai API AI. Semua hasil dibuat memakai template otomatis PHP berdasarkan nama tren, kategori, volume pencarian, keyword terkait, status, dan SEO score.
+
+
+STEP 17 - AI OPTIONAL
+1. Buka http://localhost/trendwatch/admin/ai_settings.php setelah login.
+2. Pilih provider AI.
+3. Isi API key bila memakai provider cloud.
+4. Untuk Ollama, jalankan Ollama di komputer lalu isi endpoint http://localhost:11434/api/generate.
+5. Simpan pengaturan.
+6. Klik Tes AI Sekarang.
+7. Buka SEO Brief lalu Generate atau Regenerate.
+
+Catatan:
+- AI tidak wajib aktif.
+- Jika AI gagal, sistem otomatis memakai template gratis.
+- Aktifkan extension curl di PHP untuk memakai API AI.
