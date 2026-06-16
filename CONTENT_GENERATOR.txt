@@ -1,0 +1,22 @@
+STEP 18 - ARTIKEL DAN KONTEN SHORT GENERATOR
+
+Fitur baru:
+1. Tombol Generate Artikel SEO.
+2. Tombol Generate Instagram Carousel.
+3. Tombol Generate Reels/TikTok.
+4. Tombol Generate X/Threads.
+5. Tombol Generate YouTube Shorts.
+6. Halaman Konten Siap Pakai.
+7. Halaman detail konten dengan preview, copy textarea, cetak, dan regenerate.
+
+Cara pakai:
+1. Login admin.
+2. Buka menu SEO Brief.
+3. Generate brief dari salah satu tren.
+4. Buka detail brief.
+5. Klik salah satu tombol generator konten.
+6. Salin hasil konten dari halaman detail.
+
+Catatan:
+- Generator memakai template gratis agar tetap jalan tanpa API.
+- Jika data topik bersifat aktual, tetap verifikasi angka, lokasi, skor, korban, dan klaim terbaru dari sumber resmi sebelum publikasi.
