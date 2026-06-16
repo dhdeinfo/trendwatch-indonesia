@@ -1246,3 +1246,59 @@ textarea {
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-size: 13px;
 }
+
+
+.compact-panel {
+    margin-bottom: 18px;
+}
+
+.compact-form small {
+    display: block;
+    margin-top: 6px;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.full-row {
+    grid-column: 1 / -1;
+}
+
+.toggle-row,
+.checkbox-label {
+    display: flex !important;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--card-soft);
+}
+
+.toggle-row input,
+.checkbox-label input {
+    width: auto !important;
+}
+
+.code-preview {
+    white-space: pre-wrap;
+    word-break: break-word;
+    padding: 16px;
+    border-radius: 16px;
+    background: var(--card-soft);
+    border: 1px solid var(--border);
+    max-height: 320px;
+    overflow: auto;
+}
+
+.muted-text {
+    color: var(--muted);
+    line-height: 1.7;
+}
+
+.single-column {
+    grid-template-columns: 1fr;
+}
+
+.warning-panel {
+    border-left: 4px solid #f59e0b;
+}
