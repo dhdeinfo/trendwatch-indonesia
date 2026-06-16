@@ -91,6 +91,22 @@ function trendwatch_create_schema(PDO $pdo): void
         FOREIGN KEY (trend_id) REFERENCES trends(id) ON DELETE SET NULL
     )");
 
+
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS generated_contents (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        brief_id INTEGER NOT NULL,
+        trend_id INTEGER NOT NULL,
+        content_type TEXT NOT NULL,
+        title TEXT NOT NULL,
+        body TEXT NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(brief_id, content_type),
+        FOREIGN KEY (brief_id) REFERENCES content_briefs(id) ON DELETE CASCADE,
+        FOREIGN KEY (trend_id) REFERENCES trends(id) ON DELETE CASCADE
+    )");
+
     trendwatch_add_missing_column($pdo, 'trends', 'seo_score', 'INTEGER DEFAULT 0');
     trendwatch_add_missing_column($pdo, 'trends', 'content_angle', 'TEXT');
     trendwatch_add_missing_column($pdo, 'trends', 'source', "TEXT DEFAULT 'manual'");
