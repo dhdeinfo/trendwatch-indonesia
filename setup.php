@@ -57,9 +57,31 @@ try {
         platform_ideas TEXT,
         word_count INTEGER DEFAULT 1000,
         priority_score INTEGER DEFAULT 0,
+        generator_source TEXT DEFAULT 'template',
+        ai_provider TEXT,
+        ai_status TEXT,
+        ai_message TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (trend_id) REFERENCES trends(id) ON DELETE CASCADE
+    )");
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS app_settings (
+        setting_key TEXT PRIMARY KEY,
+        setting_value TEXT,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )");
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS ai_generation_logs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        trend_id INTEGER,
+        provider TEXT NOT NULL,
+        status TEXT NOT NULL,
+        message TEXT,
+        prompt_excerpt TEXT,
+        response_excerpt TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (trend_id) REFERENCES trends(id) ON DELETE SET NULL
     )");
 
     $checkAdmin = (int) $pdo->query('SELECT COUNT(*) FROM admins')->fetchColumn();
@@ -118,6 +140,19 @@ try {
                 ]);
             }
         }
+    }
+
+    $settings = [
+        'ai_enabled' => '0',
+        'ai_provider' => 'template',
+        'ai_api_key' => '',
+        'ai_model' => 'gemini-1.5-flash',
+        'ai_endpoint' => '',
+        'ai_temperature' => '0.7',
+    ];
+    $settingStmt = $pdo->prepare("INSERT OR IGNORE INTO app_settings (setting_key, setting_value) VALUES (:key, :value)");
+    foreach ($settings as $key => $value) {
+        $settingStmt->execute([':key' => $key, ':value' => $value]);
     }
 
     $message = 'Setup database berhasil.';
