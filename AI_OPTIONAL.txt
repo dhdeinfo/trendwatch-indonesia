@@ -1,0 +1,36 @@
+AI OPTIONAL - TRENDWATCH INDONESIA
+
+Mode AI bersifat opsional. Aplikasi tetap bisa berjalan penuh tanpa API key.
+
+Provider yang tersedia:
+1. Template Gratis
+   - Tidak butuh API key.
+   - Selalu menjadi fallback.
+
+2. Gemini API
+   - Isi provider Gemini API.
+   - Isi API key.
+   - Isi model, contoh: gemini-1.5-flash.
+
+3. OpenAI API
+   - Isi API key.
+   - Isi model.
+
+4. OpenRouter
+   - Isi API key OpenRouter.
+   - Isi model sesuai akun OpenRouter.
+
+5. Ollama Lokal
+   - Install dan jalankan Ollama di komputer.
+   - Isi endpoint: http://localhost:11434/api/generate.
+   - Isi model lokal, contoh: llama3.1 atau qwen2.5.
+
+6. Custom OpenAI-Compatible
+   - Isi endpoint chat completions.
+   - Isi API key jika endpoint membutuhkan autentikasi.
+
+Fallback:
+Jika AI gagal, aplikasi tetap menyimpan SEO brief dari template gratis.
+
+Keamanan:
+Untuk production, jangan simpan API key di SQLite yang bisa diakses publik.
