@@ -627,3 +627,15 @@ API key disimpan di SQLite lokal agar mudah dipakai saat pengembangan. Untuk apl
 - `admin/content_brief_detail.php`: memakai generator AI optional saat regenerate dan menampilkan status generator.
 - `includes/sidebar.php`: menambahkan menu AI Optional.
 - `assets/css/admin.css`: menambahkan style untuk form AI, status, dan preview respons.
+
+
+## SEO Brief Quality Fix
+
+Update ini memperbaiki kualitas hasil generator SEO Brief, terutama untuk data dari Google Trends RSS. Sistem kini membersihkan keyword turunan dari judul berita panjang, nama situs, URL, dan potongan kalimat yang tidak cocok sebagai keyword. Topik kebencanaan seperti gempa, tsunami, BMKG, banjir, erupsi, dan longsor juga mendapat intent, outline, FAQ, meta description, dan ide platform yang lebih sesuai.
+
+Contoh perbaikan untuk tren `gempa palu`:
+
+- Sebelumnya keyword turunan bisa berisi judul berita panjang dan nama situs.
+- Sekarang keyword menjadi lebih bersih, seperti `gempa palu`, `gempa palu hari ini`, `gempa palu terbaru`, `info BMKG gempa palu`, `pusat gempa palu`, `gempa Sulawesi Tengah`, dan `gempa Sigi`.
+
+Catatan: untuk isu bencana, angka aktual seperti magnitudo, korban, dampak, dan lokasi detail harus tetap diverifikasi dari sumber resmi sebelum artikel dipublikasikan.
