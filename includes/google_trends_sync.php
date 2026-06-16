@@ -245,6 +245,73 @@ function gt_parse_feed(string $xmlBody): array
     }));
 }
 
+
+function gt_sanitize_keyword_piece(string $text): string
+{
+    $text = html_entity_decode(strip_tags($text), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+    $text = preg_replace('/(\d)\s*,\s*(\d)/u', '$1.$2', $text);
+    $text = preg_replace('/\s*[-|–—]\s*(kompas\.com|detikcom|detik\.com|cnn indonesia|kumparan\.com|tribunnews\.com|liputan6\.com|antara news|tempo\.co|suara\.com|republika\.co\.id|okezone\.com|viva\.co\.id).*$/iu', '', $text);
+    $text = preg_replace('/\b(kompas\.com|detikcom|detik\.com|cnn indonesia|kumparan\.com|tribunnews\.com|liputan6\.com|antara news|tempo\.co|suara\.com|republika\.co\.id|okezone\.com|viva\.co\.id)\b/iu', '', $text);
+    $text = preg_replace('/https?:\/\/\S+/i', '', $text);
+    $text = preg_replace('/\s+/', ' ', $text);
+    return trim($text, " \t\n\r\0\x0B.,;:-|");
+}
+
+function gt_related_keywords_from_news(string $title, string $description, array $newsTitles): string
+{
+    $base = strtolower(gt_sanitize_keyword_piece($title));
+    $raw = implode(' ', $newsTitles) . ' ' . $description;
+    $items = [];
+
+    if (str_contains($base . ' ' . strtolower($raw), 'gempa')) {
+        $items[] = $base;
+        $items[] = $base . ' hari ini';
+        $items[] = $base . ' terbaru';
+        $items[] = 'info BMKG ' . $base;
+        if (str_contains(strtolower($raw), 'sulawesi tengah') || str_contains($base, 'palu')) {
+            $items[] = 'gempa Sulawesi Tengah';
+        }
+        if (str_contains(strtolower($raw), 'sigi')) {
+            $items[] = 'gempa Sigi';
+        }
+        if (preg_match('/m\s*(\d+(?:[.,]\d+)?)/iu', $raw, $m)) {
+            $items[] = $base . ' magnitudo ' . str_replace(',', '.', $m[1]);
+        }
+        if (str_contains(strtolower($raw), 'tsunami')) {
+            $items[] = $base . ' tsunami';
+        }
+    }
+
+    foreach ($newsTitles as $newsTitle) {
+        $clean = gt_sanitize_keyword_piece($newsTitle);
+        if ($clean === '' || strlen($clean) > 58 || str_contains(strtolower($clean), '.com')) {
+            continue;
+        }
+        if (preg_match('/\b(saat|berhamburan|peserta|wisuda|kembali guncang)\b/iu', $clean)) {
+            continue;
+        }
+        $items[] = $clean;
+    }
+
+    if (!$items && $description !== '') {
+        $items[] = gt_sanitize_keyword_piece(substr($description, 0, 120));
+    }
+
+    $unique = [];
+    foreach ($items as $item) {
+        $item = gt_sanitize_keyword_piece($item);
+        if ($item === '') {
+            continue;
+        }
+        $key = strtolower($item);
+        if (!isset($unique[$key])) {
+            $unique[$key] = $item;
+        }
+    }
+
+    return implode(', ', array_slice(array_values($unique), 0, 8));
+}
+
 function gt_extract_item(SimpleXMLElement $item): array
 {
     $title = gt_clean_text((string) ($item->title ?? ''));
@@ -269,10 +336,7 @@ function gt_extract_item(SimpleXMLElement $item): array
         }
     }
 
-    $related = trim(implode(', ', array_unique(array_slice($newsTitles, 0, 5))));
-    if (!$related && $description) {
-        $related = substr($description, 0, 250);
-    }
+    $related = gt_related_keywords_from_news($title, $description, $newsTitles);
 
     $volume = gt_parse_volume_text($approxTraffic);
     $volumeText = $approxTraffic ?: ($volume > 0 ? format_volume_text($volume) : '0+');
