@@ -1,0 +1,35 @@
+SEO BRIEF QUALITY FIX
+=====================
+
+Masalah yang diperbaiki:
+- Keyword turunan dari Google Trends RSS sebelumnya kadang berisi judul berita panjang.
+- Keyword turunan bisa ikut memuat nama situs seperti kumparan.com, detikcom, atau kompas.com.
+- Angka magnitudo seperti M6, 7 bisa terpisah menjadi potongan keyword yang tidak rapi.
+- Brief untuk topik kebencanaan seperti gempa masih terlalu umum.
+
+Perbaikan:
+1. Sanitasi keyword turunan.
+   Sistem membersihkan nama situs, URL, judul berita panjang, tanda baca berlebih, dan potongan kalimat yang tidak layak menjadi keyword.
+
+2. Deteksi topik kebencanaan.
+   Topik seperti gempa, tsunami, BMKG, banjir, erupsi, dan longsor mendapat intent, outline, FAQ, dan ide platform yang lebih relevan.
+
+3. Keyword turunan lebih ringkas.
+   Contoh untuk topik "gempa palu":
+   - gempa palu
+   - gempa palu hari ini
+   - gempa palu terbaru
+   - info BMKG gempa palu
+   - pusat gempa palu
+   - gempa Sulawesi Tengah
+   - gempa Sigi
+   - Gempa Palu magnitudo 6.7
+
+4. Prompt AI diperkuat.
+   AI diberi instruksi agar tidak memakai judul berita panjang sebagai keyword dan tidak mengarang angka terbaru.
+
+5. Fallback template tetap aktif.
+   Jika AI gagal, brief tetap dibuat memakai generator template gratis.
+
+Catatan:
+Untuk isu gempa dan bencana, aplikasi hanya membuat brief konten. Data aktual seperti magnitudo, korban, dampak, dan lokasi detail tetap harus diverifikasi dari sumber resmi seperti BMKG atau otoritas terkait sebelum artikel dipublikasikan.
