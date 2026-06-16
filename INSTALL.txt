@@ -1,0 +1,41 @@
+INSTALL TRENDWATCH STEP 15
+
+1. Extract ZIP.
+2. Copy folder trendwatch ke:
+   C:\laragon\www\
+
+3. Pastikan struktur folder seperti ini:
+   C:\laragon\www\trendwatch\index.php
+   C:\laragon\www\trendwatch\setup.php
+   C:\laragon\www\trendwatch\auth\login.php
+   C:\laragon\www\trendwatch\admin\dashboard.php
+
+4. Buka di browser:
+   http://localhost/trendwatch/setup.php
+
+5. Login:
+   http://localhost/trendwatch/auth/login.php
+
+6. Akun default:
+   Email: admin@gmail.com
+   Password: admin123
+
+7. Jika muncul error no such table, buka setup.php sekali lagi.
+   Aplikasi ini juga sudah membuat tabel otomatis melalui config/database.php.
+
+8. Jika Google Trends Sync gagal, aktifkan ekstensi PHP:
+   extension=pdo_sqlite
+   extension=sqlite3
+   extension=simplexml
+   extension=curl
+
+9. Restart Laragon setelah mengubah php.ini.
+
+FITUR STEP 15
+- Landing page baru
+- Dashboard lebih modern
+- Sidebar final
+- Dark mode dan light mode
+- Mobile responsive
+- Tabel dan form lebih rapi
+- Chart mengikuti tema tampilan

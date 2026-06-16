@@ -1,0 +1,26 @@
+FIX ERROR: no such table: trends
+
+Penyebab:
+SQLite file sudah terbaca, tetapi tabel belum dibuat.
+Ini biasanya terjadi karena setup.php belum dijalankan pada folder project yang sedang aktif.
+
+Perbaikan di versi ini:
+- config/database.php otomatis membuat tabel admins, trends, dan trend_histories.
+- config/database.php otomatis mengisi admin default dan data tren contoh jika database masih kosong.
+- Dashboard tidak akan error lagi walaupun setup.php lupa dijalankan.
+
+Akun admin:
+Email: admin@gmail.com
+Password: admin123
+
+Cara pakai:
+1. Extract ZIP.
+2. Copy folder trendwatch ke folder Laragon yang kamu pakai.
+3. Karena posisi kamu sekarang ada di C:\laragon\www\trend\trendwatch, buka:
+   http://localhost/trend/trendwatch/auth/login.php
+4. Login memakai akun default.
+
+Jika masih error:
+1. Hapus file database/trendwatch.sqlite.
+2. Buka kembali halaman login atau setup.php.
+3. File database dan tabel akan dibuat ulang otomatis.
