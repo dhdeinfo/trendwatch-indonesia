@@ -639,3 +639,35 @@ Contoh perbaikan untuk tren `gempa palu`:
 - Sekarang keyword menjadi lebih bersih, seperti `gempa palu`, `gempa palu hari ini`, `gempa palu terbaru`, `info BMKG gempa palu`, `pusat gempa palu`, `gempa Sulawesi Tengah`, dan `gempa Sigi`.
 
 Catatan: untuk isu bencana, angka aktual seperti magnitudo, korban, dampak, dan lokasi detail harus tetap diverifikasi dari sumber resmi sebelum artikel dipublikasikan.
+
+## Step 18 - Artikel dan Konten Short Generator
+
+Perubahan baru:
+
+- Menambahkan tabel `generated_contents`.
+- Menambahkan menu **Konten Siap Pakai**.
+- Menambahkan tombol generator di halaman detail SEO Brief.
+- Menambahkan generator **Artikel SEO**.
+- Menambahkan generator **Instagram Carousel**.
+- Menambahkan generator **Reels/TikTok**.
+- Menambahkan generator **X/Threads**.
+- Menambahkan generator **YouTube Shorts**.
+- Menambahkan halaman daftar konten hasil generator.
+- Menambahkan halaman detail konten dengan preview, copy textarea, tombol cetak, dan tombol regenerate.
+- Menambahkan file `includes/content_script_generator.php`.
+- Menambahkan file `admin/content_generate.php`.
+- Menambahkan file `admin/generated_contents.php`.
+- Menambahkan file `admin/generated_content_detail.php`.
+
+Alur penggunaan:
+
+1. Buka menu **SEO Brief**.
+2. Generate brief dari salah satu tren.
+3. Buka detail brief.
+4. Klik tombol **Artikel SEO**, **Instagram Carousel**, **Reels/TikTok**, **X/Threads**, atau **YouTube Shorts**.
+5. Sistem membuat konten siap salin.
+6. Buka menu **Konten Siap Pakai** untuk melihat semua hasil generator.
+
+Catatan kualitas:
+
+Generator ini memakai template gratis. Hasilnya cocok sebagai draft awal. Untuk topik aktual, periksa ulang data terbaru dari sumber resmi sebelum publikasi.
