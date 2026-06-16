@@ -3,6 +3,7 @@
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/auth.php';
 require_once __DIR__ . '/../includes/ai_content_generator.php';
+require_once __DIR__ . '/../includes/content_script_generator.php';
 require_admin();
 
 $pageTitle = 'Detail SEO Content Brief';
@@ -52,6 +53,9 @@ $outlineLines = brief_lines($brief['outline']);
 $faqLines = brief_lines($brief['faq_items']);
 $platformIdeas = brief_lines($brief['platform_ideas']);
 $secondaryKeywords = seo_split_keywords($brief['secondary_keywords']);
+$generatedStmt = $pdo->prepare('SELECT * FROM generated_contents WHERE brief_id = :brief_id ORDER BY updated_at DESC');
+$generatedStmt->execute([':brief_id' => (int) $brief['id']]);
+$generatedContents = $generatedStmt->fetchAll();
 
 require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/sidebar.php';
@@ -219,6 +223,48 @@ require_once __DIR__ . '/../includes/sidebar.php';
                 </div>
             <?php endforeach; ?>
         </div>
+    </section>
+
+    <section class="panel no-print">
+        <div class="panel-header with-actions">
+            <div>
+                <h2>Generator Artikel dan Konten Short</h2>
+                <span>Klik tombol sesuai format. Sistem akan membuat draft artikel atau script media sosial dari brief ini.</span>
+            </div>
+            <a href="<?= e(url('admin/generated_contents.php')) ?>" class="btn btn-secondary">Lihat Semua Konten</a>
+        </div>
+        <div class="content-generator-grid">
+            <?php foreach (cg_allowed_types() as $type): ?>
+                <form method="post" action="<?= e(url('admin/content_generate.php')) ?>" class="generator-card">
+                    <?= csrf_field() ?>
+                    <input type="hidden" name="brief_id" value="<?= (int) $brief['id'] ?>">
+                    <input type="hidden" name="content_type" value="<?= e($type) ?>">
+                    <strong><?= e(cg_type_label($type)) ?></strong>
+                    <p><?= e($type === 'article' ? 'Buat draft artikel SEO dari outline brief.' : 'Buat script siap pakai untuk konten short.') ?></p>
+                    <button type="submit" class="btn btn-primary small">Generate</button>
+                </form>
+            <?php endforeach; ?>
+        </div>
+
+        <?php if ($generatedContents): ?>
+            <div class="panel-header mt-16">
+                <h2>Konten yang Sudah Dibuat</h2>
+                <span><?= count($generatedContents) ?> format tersedia</span>
+            </div>
+            <div class="brief-grid">
+                <?php foreach ($generatedContents as $content): ?>
+                    <article class="brief-card">
+                        <div class="brief-card-top">
+                            <span class="badge info"><?= e(cg_type_label($content['content_type'])) ?></span>
+                            <small><?= e($content['updated_at']) ?></small>
+                        </div>
+                        <h3><?= e($content['title']) ?></h3>
+                        <p><?= e(cg_limit_text($content['body'], 140)) ?></p>
+                        <a href="<?= e(url('admin/generated_content_detail.php?id=' . $content['id'])) ?>" class="btn btn-secondary small">Lihat Konten</a>
+                    </article>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
     </section>
 
     <section class="panel">
