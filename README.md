@@ -1,7 +1,5 @@
 # TrendWatch Indonesia
 
-# Semua code dibuat menggunakan ChatGPT
-
 TrendWatch Indonesia adalah aplikasi PHP Native + SQLite untuk memantau tren pencarian, mengelola data tren, menampilkan grafik tren, membaca peluang konten SEO, dan melakukan sinkronisasi data dari Google Trends RSS Indonesia.
 
 Versi ini adalah **Step 15 Final**, yaitu versi finalisasi tampilan setelah proses pengembangan bertahap dari Step 1 sampai Step 10, lalu langsung dilanjutkan ke Step 15.
@@ -573,3 +571,59 @@ Nanti fitur ini masih bisa dikembangkan menjadi mode AI opsional dengan Gemini A
 - `admin/trend_detail.php`: menambahkan tombol Buat SEO Brief.
 - `assets/css/admin.css`: menambahkan style untuk brief card, copy textarea, dan form inline.
 
+
+
+## Step 17 - AI Optional Generator
+
+Step 17 menambahkan mode AI opsional untuk fitur SEO Content Brief. Sistem tetap aman karena template gratis masih menjadi fallback utama.
+
+### Fitur Step 17
+
+- Menambahkan menu **AI Optional**.
+- Menambahkan halaman `admin/ai_settings.php`.
+- Menambahkan file `includes/ai_content_generator.php`.
+- Menambahkan tabel `app_settings` untuk menyimpan konfigurasi AI.
+- Menambahkan tabel `ai_generation_logs` untuk mencatat aktivitas generate AI.
+- Menambahkan pilihan provider:
+  - Template Gratis
+  - Gemini API
+  - OpenAI API
+  - OpenRouter
+  - Ollama Lokal
+  - Custom OpenAI-Compatible Endpoint
+- Menambahkan tombol tes koneksi AI.
+- Menambahkan fallback otomatis ke template gratis jika AI gagal.
+- Menambahkan informasi generator pada detail SEO Brief.
+- Menambahkan log respons AI terbaru.
+- Menambahkan kolom baru pada `content_briefs`: `generator_source`, `ai_provider`, `ai_status`, dan `ai_message`.
+
+### Cara memakai AI Optional
+
+1. Login sebagai admin.
+2. Buka menu **AI Optional**.
+3. Aktifkan checkbox **Aktifkan AI Optional**.
+4. Pilih provider.
+5. Isi model, API key, dan endpoint jika diperlukan.
+6. Klik **Simpan Pengaturan**.
+7. Klik **Tes AI Sekarang** untuk mengecek koneksi.
+8. Buka menu **SEO Brief**.
+9. Klik **Generate** atau **Regenerate**.
+
+Jika AI tidak aktif atau request gagal, sistem tetap membuat brief memakai template gratis.
+
+### Catatan keamanan Step 17
+
+API key disimpan di SQLite lokal agar mudah dipakai saat pengembangan. Untuk aplikasi production, simpan API key di file `.env`, environment variable, atau storage yang tidak berada di folder public.
+
+### Changelog Step 17
+
+- `config/database.php`: menambahkan schema `app_settings`, `ai_generation_logs`, dan kolom AI pada `content_briefs`.
+- `setup.php`: menambahkan setup tabel dan default setting AI.
+- `check_connection.php`: menambahkan pengecekan tabel AI.
+- `includes/ai_content_generator.php`: menambahkan integrasi provider AI dan fallback template.
+- `includes/seo_brief_generator.php`: menambahkan penyimpanan metadata generator.
+- `admin/ai_settings.php`: halaman pengaturan AI optional.
+- `admin/content_briefs.php`: memakai generator AI optional saat mode AI aktif.
+- `admin/content_brief_detail.php`: memakai generator AI optional saat regenerate dan menampilkan status generator.
+- `includes/sidebar.php`: menambahkan menu AI Optional.
+- `assets/css/admin.css`: menambahkan style untuk form AI, status, dan preview respons.
