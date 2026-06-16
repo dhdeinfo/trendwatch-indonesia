@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/auth.php';
-require_once __DIR__ . '/../includes/seo_brief_generator.php';
+require_once __DIR__ . '/../includes/ai_content_generator.php';
 require_admin();
 
 $pageTitle = 'Detail SEO Content Brief';
@@ -29,7 +29,7 @@ if (is_post()) {
     $trend = $trendStmt->fetch();
 
     if ($trend) {
-        $newBrief = seo_generate_brief($trend);
+        $newBrief = ai_generate_seo_brief($pdo, $trend);
         $briefId = seo_save_brief($pdo, (int) $brief['trend_id'], $newBrief);
         flash_set('success', 'SEO content brief berhasil diperbarui.');
         redirect('admin/content_brief_detail.php?id=' . $briefId);
@@ -116,6 +116,15 @@ require_once __DIR__ . '/../includes/sidebar.php';
                 <span>Terakhir diperbarui</span>
                 <strong><?= e($brief['updated_at']) ?></strong>
             </div>
+            <div>
+                <span>Generator</span>
+                <strong><?= e(($brief['generator_source'] ?? 'template') === 'ai' ? 'AI Optional' : 'Template Gratis') ?></strong>
+            </div>
+            <div>
+                <span>Status AI</span>
+                <strong><?= e($brief['ai_message'] ?? 'Tidak ada catatan AI.') ?></strong>
+            </div>
+
         </div>
     </section>
 
